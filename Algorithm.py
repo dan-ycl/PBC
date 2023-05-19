@@ -198,6 +198,10 @@ if not output:
     print("沒有所有人皆能出席的時間！")
 else:
     print("以下為所有人皆能出席的時間：")
-    for line in output:
-        print(line)
+    for ln in range(len(output)):
+        print(ln + 1, output[ln], sep=",")
+
+    favorite = int(input("請輸入最終決定的開會時段編號： "))
+    print("以下為最終決定的開會時間：")
+    print(output[favorite - 1])
         

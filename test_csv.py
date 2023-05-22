@@ -61,4 +61,3 @@ for i in all_list:
 print(result)
 
 
-

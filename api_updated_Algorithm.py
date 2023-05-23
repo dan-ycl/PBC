@@ -1,6 +1,23 @@
 import csv
 from datetime import datetime, timedelta
 
+# Function 1：host 發起會議
+# 輸入資訊：time, length, location
+# 串接 Google Sheet，將輸入會議資訊寫入試算表
+# 創立新的 meeting A 試算表，產生 Key 編號
+
+# Function 2: attendee 填入時間
+# 輸入 Key 編號
+# 透過 Google Sheet API，抓出 meeting A 試算表
+# 輸入開會有空時間: name, available time
+# 將輸入開會有空時間寫入 meeting A 試算表
+
+# Function 3: 查看最終開會時間
+# 輸入 Key 編號
+# 串接 Google Sheet API，將對應的 meeting A 試算表抓下來，計算最終可以的開會時間
+# 輸出所有可以的開會時間
+# 輸入最終想要的開會時間編號
+#  meeting A 試算表抓出與會者姓名與信箱，串接 Google Calendar API，自動寄送會議邀請
 
 class Attendant:
     # 會議參加者的名字（name）和電子信箱（email）

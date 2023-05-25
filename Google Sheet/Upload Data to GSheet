@@ -1,0 +1,16 @@
+# 05/24 將csv資料寫入G Sheet
+import google.auth
+from google.oauth2.service_account import Credentials
+import pandas as pd
+import pygsheets
+
+# 授權金鑰 json 放置的位子
+gc = pygsheets.authorize(service_file='D:/Python_111-2/01_G sheet API/credentials.json')  
+# 利用 pygsheets 開啟 GoogleSheet
+sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1h9r2dgUJD5Fze36lkCy0sbpeQAw4V0PJlcc0cVLU4iw/edit#gid=0')
+
+# 創建指定命名的分頁，並將開會時間寫入該指定分頁
+worksheet = sheet.add_worksheet("05/25 new sheet")
+worksheet.clear()
+df = pd.read_csv('D:/Python_111-2/01_G sheet API/schedule.csv', encoding = 'utf-8')
+worksheet.set_dataframe(df,(1,1))

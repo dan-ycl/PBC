@@ -10,8 +10,7 @@ import os
 import csv
 import formulas
 import pandas as pd
-# 以下是引入 def function_name()的code, formulas是我另外創的一個py檔, 只有存放 def function_name()
-# 不同介面引入py檔的方法好像不太一樣, 所以你在你電腦跑的時候要查一下你引入py檔的code是什麼
+
 # import sys
 # sys.path.append('D:\NTUmba\商管程式設計\期末專案')
 

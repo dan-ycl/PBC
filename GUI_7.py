@@ -313,6 +313,7 @@ class Meeting(tk.Frame):
         #         button = Radiobutton(self.cvsMain, text=item, variable=var, value=item)
         #         button.pack(anchor=W)
 
+    # 與會者加入會議
     def clickBtnJoin(self):
         self.name = self.txtAttendant.get("0.0", tk.END)
         self.email = self.txtEmail.get("0.0", tk.END)

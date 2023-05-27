@@ -18,11 +18,14 @@ service = build('sheets', 'v4', credentials=creds)
 # Call the Sheets API
 sheet = service.spreadsheets()
 result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
-                                    range='0523 demo Title!A1:E6').execute()
-values = result.get('values', [])
+                                    range='0523 demo Title!A1:E6').execute()  # 讀資料
+# values = result.get('values', [])
 
+
+# 想要輸入的資料
 put_in = [["05/23/2012", 2000], ["05/24/2012", 5000], ["05/24/2012", 5000]]
 
+# 把要輸入的資料傳到google sheet
 request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID, range='Sheet2!B2', valueInputOption="USER_ENTERED", body={"values":put_in}).execute()
 
 

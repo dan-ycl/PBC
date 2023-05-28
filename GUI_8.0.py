@@ -12,12 +12,12 @@ from tkcalendar import *
 from datetime import datetime, timedelta
 
 ###
-import sys
-sys.path.append('/Users/zoujinghao/Desktop/PBC/期末專案')
+# import sys
+# sys.path.append('/Users/zoujinghao/Desktop/PBC/期末專案')
 import formulas
 ###
 
-file_path = "/Users/zoujinghao/Desktop/PBC/期末專案/schedule.csv" #存取檔案路徑(1)
+file_path = "./schedule.csv" #存取檔案路徑(1)
 if os.path.isfile(file_path):
     os.remove(file_path)
 
@@ -115,7 +115,7 @@ class Meeting(tk.Frame):
             
         # 會議與會者頁面
         elif self.valueIdentity == '會議與會者':
-            fh = open('/Users/zoujinghao/Desktop/PBC/期末專案/meeting.csv', "r") #存取檔案路徑(2)
+            fh = open('meeting.csv', "r") #存取檔案路徑(2)
             csvFile = csv.DictReader(fh)
             for row in csvFile:
                 self.m_startDate = row["start date"]
@@ -214,7 +214,7 @@ class Meeting(tk.Frame):
             self.m_startTime = self.boxHourStart.get()
             self.m_endTime = self.boxHourEnd.get()
             
-            with open('/Users/zoujinghao/Desktop/PBC/期末專案/meeting.csv', "w", newline='') as test: #存取檔案路徑(2)
+            with open('meeting.csv', "w", newline='') as test: #存取檔案路徑(2)
                 writer = csv.writer(test)
                 # 輸入標題
                 csv_head = ['title', 'location', 'start date', 'end date', 'start time', 'end time', 'hour', 'min']
@@ -226,7 +226,7 @@ class Meeting(tk.Frame):
 
     #查看會議結果頁面
     def clickBtnResult(self):
-        fh = open('/Users/zoujinghao/Desktop/PBC/期末專案/meeting.csv', "r") #存取檔案路徑(2)
+        fh = open('meeting.csv', "r") #存取檔案路徑(2)
         csvFile = csv.DictReader(fh)
         for row in csvFile:
             self.m_title = row["title"]
@@ -242,10 +242,10 @@ class Meeting(tk.Frame):
         for i in date_delta:
             date_schedule.append(formulas.Schedule(i).schedule)
         meeting_length = int(self.int_hour) * 60 + int(self.int_min)
-        self.data = pd.read_csv('/Users/zoujinghao/Desktop/PBC/期末專案/schedule.csv') #存取檔案路徑(1)
+        self.data = pd.read_csv('schedule.csv') #存取檔案路徑(1)
         name_num = self.data['name'].nunique()
         # 讀取每一個人的available time
-        fh = open('/Users/zoujinghao/Desktop/PBC/期末專案/schedule.csv', "r") #存取檔案路徑(1)
+        fh = open('schedule.csv', "r") #存取檔案路徑(1)
         test = csv.DictReader(fh)
         # 把每一行的時段加進對應天數的清單中
         for row in test:
@@ -318,13 +318,13 @@ class Meeting(tk.Frame):
         self.startTime = self.boxChooseStartTime.get()
         self.endTime = self.boxChooseEndTime.get()
         
-        file_path = "/Users/zoujinghao/Desktop/PBC/期末專案/schedule.csv" #存取檔案路徑(1)
+        file_path = "./schedule.csv" #存取檔案路徑(1)
         if os.path.isfile(file_path):
             with open(file_path, "a+", newline='') as test:
                 writer = csv.writer(test)
                 writer.writerow([self.name, self.email, self.date, self.startTime, self.endTime, formulas.time_str(self.startTime, self.endTime)])
         else:
-            with open('/Users/zoujinghao/Desktop/PBC/期末專案/schedule.csv', "w", newline='') as test: #存取檔案路徑(1)
+            with open('./schedule.csv', "w", newline='') as test: #存取檔案路徑(1)
                 writer = csv.writer(test)
                 # 輸入標題
                 csv_head = ['name', 'email', 'date', 'start time', 'end time', 'time string']
@@ -336,7 +336,7 @@ class Meeting(tk.Frame):
         self.cvsMain.create_text(185,30,text="開始時間", anchor='w', font = ('Arial',16))
         self.cvsMain.create_text(355,30,text="結束時間", anchor='w', font = ('Arial',16))
         y = 30
-        fh = open('/Users/zoujinghao/Desktop/PBC/期末專案/schedule.csv', "r") #存取檔案路徑(1)
+        fh = open('./schedule.csv', "r") #存取檔案路徑(1)
         test = csv.DictReader(fh)
         for row in test:
             y += 30
@@ -355,7 +355,7 @@ class Meeting(tk.Frame):
     # 建立 Google Calendar
     def clickBtnCal(self):
         # 拿取不重複的email
-        self.data = pd.read_csv('/Users/zoujinghao/Desktop/PBC/期末專案/schedule.csv') #存取檔案路徑(1)
+        self.data = pd.read_csv('./schedule.csv') #存取檔案路徑(1)
         self.data['email'] = self.data['email'].str.strip()
         unique_email = self.data['email'].unique()
         print(unique_email)

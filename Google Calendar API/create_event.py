@@ -14,8 +14,7 @@ def create_event(meeting_name, start, end, CREDENTIALS_FILE, attend_list):
            "end": {"dateTime": end, "timeZone": 'Asia/Taipei'},
            "attendees":attend_list,
            "conferenceData": {"createRequest": {"requestId": f"{uuid4().hex}",
-                                                  "conferenceSolutionKey": {"type": "hangoutsMeet"}}},
-             
+                                                  "conferenceSolutionKey": {"type": "hangoutsMeet"}}},    
            },
        sendUpdates = 'all', conferenceDataVersion=1
    ).execute()
@@ -27,11 +26,11 @@ def create_event(meeting_name, start, end, CREDENTIALS_FILE, attend_list):
    print("starts at: ", event_result['start']['dateTime'])
    print("ends at: ", event_result['end']['dateTime'])
 
-
-# 必須是 oauth 的jason，和google sheet 的金鑰不一樣
+# 必須是 oauth 的jason，和google sheet 的金鑰(屬於service account)不一樣
+# https://console.cloud.google.com/apis/credentials?project=festive-catwalk-387114 或於此網址下載(Google_OAuth_Calendar.json)
 CREDENTIALS_FILE = 'D:/Python_111-2/00_PBC_Final_API_service/credentials_oauth.json' 
 meeting_name = '05/25 Meeting'
-# creates one hour event tomorrow 10 AM IST
+# 測試版的會議時間：creates one hour event tomorrow 10 AM IST
 d = datetime.now().date()
 tomorrow = datetime(d.year, d.month, d.day, 10)+timedelta(days=1)
 start = tomorrow.isoformat()

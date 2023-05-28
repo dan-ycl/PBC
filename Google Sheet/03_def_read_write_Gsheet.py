@@ -33,7 +33,6 @@ def read_GSheet_to_csv(meeting_name, cred_path, output_csv):
     return
 
 
-"""
 # Function 2: attendee 填入時間 / Attendee 按下button後的執行動作
 # 須改變以下三列字串變數
 meeting_name = '05/25 Meeting'
@@ -51,7 +50,7 @@ cred_path = 'D:\\Python_111-2\\01_G sheet API\\credentials.json'
 output_csv = 'D:\\Python_111-2\\01_G sheet API\\DT_download.csv'
 
 host_action = read_GSheet_to_csv(meeting_name, cred_path, output_csv)
-"""
+
 
 
 ### 待辦函數 ###

@@ -28,7 +28,7 @@ def create_event(meeting_name, start, end, CREDENTIALS_FILE, attend_list):
 
 # 必須是 oauth 的jason，和google sheet 的金鑰(屬於service account)不一樣
 # https://console.cloud.google.com/apis/credentials?project=festive-catwalk-387114 或於此網址下載(Google_OAuth_Calendar.json)
-CREDENTIALS_FILE = 'D:/Python_111-2/00_PBC_Final_API_service/credentials_oauth.json' 
+CREDENTIALS_FILE = './Google Calendar API/credentials_oauth.json' 
 meeting_name = '05/25 Meeting'
 # 測試版的會議時間：creates one hour event tomorrow 10 AM IST
 d = datetime.now().date()

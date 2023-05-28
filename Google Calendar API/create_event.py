@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from cal_setup import get_calendar_service
-
+from uuid import uuid4
 
 def create_event(meeting_name, start, end, CREDENTIALS_FILE, attend_list):
    
@@ -12,9 +12,12 @@ def create_event(meeting_name, start, end, CREDENTIALS_FILE, attend_list):
            # "description": 'This is a tutorial example of automating google calendar with python',
            "start": {"dateTime": start, "timeZone": 'Asia/Taipei'},
            "end": {"dateTime": end, "timeZone": 'Asia/Taipei'},
-           "attendees":attend_list,  
-       },
-       sendUpdates = 'all'
+           "attendees":attend_list,
+           "conferenceData": {"createRequest": {"requestId": f"{uuid4().hex}",
+                                                  "conferenceSolutionKey": {"type": "hangoutsMeet"}}},
+             
+           },
+       sendUpdates = 'all', conferenceDataVersion=1
    ).execute()
 
    # print 部分可以省略，單純在 terminal上顯示訊息

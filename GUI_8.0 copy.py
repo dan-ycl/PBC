@@ -368,9 +368,6 @@ class Meeting(tk.Frame):
         self.data['email'] = self.data['email'].str.strip()
         attend_list = self.data['email'].unique()
 
-        # 拿會議名稱
-        meeting_name = self.data['name']
-
         # 拿會議資訊
         CREDENTIALS_FILE = './Google Calendar API/credentials_oauth.json'
 
@@ -379,6 +376,13 @@ class Meeting(tk.Frame):
         self.final_beg, self.final_end = self.final_decision.split(' - ')
         start = datetime.strptime(formulas.str2iso(self.final_beg), "%Y-%m-%dT%H:%M:%S")
         end = datetime.strptime(formulas.str2iso(self.final_end), "%Y-%m-%dT%H:%M:%S")
+        
+        # 拿會議名稱
+        fh = open('meeting.csv', "r") #存取檔案路徑(2)
+        csvFile = csv.DictReader(fh)
+        for row in csvFile:
+            self.m_title = row["title"]
+        meeting_name = self.m_title
         
         host_setup = create_event(meeting_name, start, end, CREDENTIALS_FILE, attend_list)
 

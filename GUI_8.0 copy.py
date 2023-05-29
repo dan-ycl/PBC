@@ -366,7 +366,11 @@ class Meeting(tk.Frame):
         # 拿取不重複的email
         self.data = pd.read_csv('./schedule.csv') #存取檔案路徑(1)
         self.data['email'] = self.data['email'].str.strip()
-        attend_list = self.data['email'].unique()
+        email_list = self.data['email'].unique()
+        attend_list = [0] * len(email_list)
+        for i in range(len(email_list)):
+            attend_list[i] = {'email': email_list[i]}
+        # print(attend_list)
 
         # 拿會議資訊
         CREDENTIALS_FILE = './Google Calendar API/credentials_oauth.json'
@@ -374,17 +378,17 @@ class Meeting(tk.Frame):
         ###
         self.final_decision = self.boxTime.get()
         self.final_beg, self.final_end = self.final_decision.split(' - ')
-        start = datetime.strptime(formulas.str2iso(self.final_beg), "%Y-%m-%dT%H:%M:%S")
-        end = datetime.strptime(formulas.str2iso(self.final_end), "%Y-%m-%dT%H:%M:%S")
-        
+        self.start = formulas.str2iso(self.final_beg)
+        self.end = formulas.str2iso(self.final_end)
+
         # 拿會議名稱
         fh = open('meeting.csv', "r") #存取檔案路徑(2)
         csvFile = csv.DictReader(fh)
         for row in csvFile:
             self.m_title = row["title"]
-        meeting_name = self.m_title
+        # meeting_name = self.m_title
         
-        host_setup = create_event(meeting_name, start, end, CREDENTIALS_FILE, attend_list)
+        host_setup = create_event(self.m_title, self.start, self.end, CREDENTIALS_FILE, attend_list)
 
         # print(api_begin, api_end)
 

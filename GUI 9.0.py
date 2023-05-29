@@ -318,7 +318,7 @@ class Meeting(tk.Frame):
         self.lblIdentityAttendee.grid(row = 2, column = 0, columnspan = 5, sticky = tk.NE + tk.SW)
         
         self.lblAttendant.grid(row=4, column=0, sticky = tk.NE + tk.SW)
-        self.txtAttendant.grid(row=4,column=1, columnspan=3, sticky = tk.NE + tk.SW)
+        self.txtAttendant.grid(row=4,column=1, columnspan=4, sticky = tk.NE + tk.SW)
         
         self.lblEmail.grid(row=5, column=0, sticky = tk.NE + tk.SW)
         self.txtEmail.grid(row=5,column=1, columnspan=4, sticky = tk.NE + tk.SW)

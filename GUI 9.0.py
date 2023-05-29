@@ -134,6 +134,7 @@ class Meeting(tk.Frame):
             self.btnSearch = tk.Button(self, text="查詢會議", height=1, command=self.clickBtnSearch, font = ('Arial',14), activeforeground='#f00')
             
             self.cvsMain.grid(row=4, rowspan=8 , column=0, columnspan=5, sticky = tk.NE + tk.SW)
+            self.lblIdentityAttendee.grid(row = 2, column = 0, columnspan = 5, sticky = tk.NE + tk.SW)
             self.lblAttendMeeting.grid(row=3, column=0, sticky = tk.NE + tk.SW)
             self.txtAttendMeeting.grid(row=3, column=1, columnspan = 4, sticky = tk.NE + tk.SW)
             self.btnSearch.grid(row=3,column=4, columnspan=1, sticky = tk.NE + tk.SW)

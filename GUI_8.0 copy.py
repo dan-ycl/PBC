@@ -24,6 +24,10 @@ file_path = "./schedule.csv" #存取檔案路徑(1)
 if os.path.isfile(file_path):
     os.remove(file_path)
 
+file_path = "./meeting.csv" #存取檔案路徑(2)
+if os.path.isfile(file_path):
+    os.remove(file_path)
+
 class Meeting(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)

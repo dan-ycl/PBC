@@ -11,13 +11,15 @@ from tkinter import scrolledtext
 from tkcalendar import * 
 from datetime import datetime, timedelta
 
+
+
 ###
 # import sys
 # sys.path.append('/Users/zoujinghao/Desktop/PBC/期末專案')
 import formulas
 ###
 # 輸入 google API 函數
-import create_event
+from create_event import create_event
 # import def_read_write_Gsheet
 
 file_path = "./schedule.csv" #存取檔案路徑(1)
@@ -375,8 +377,9 @@ class Meeting(tk.Frame):
         ###
         self.final_decision = self.boxTime.get()
         self.final_beg, self.final_end = self.final_decision.split(' - ')
-        start = formulas.str2iso(self.final_beg)
-        end = formulas.str2iso(self.final_end)
+        start = datetime.strptime(formulas.str2iso(self.final_beg), "%Y-%m-%dT%H:%M:%S")
+        end = datetime.strptime(formulas.str2iso(self.final_end), "%Y-%m-%dT%H:%M:%S")
+        
         host_setup = create_event(meeting_name, start, end, CREDENTIALS_FILE, attend_list)
 
         # print(api_begin, api_end)
@@ -423,3 +426,6 @@ def get_date_range(start_date, end_date):
 m = Meeting()
 m.master.title("Meeting Arrangement")
 m.mainloop()
+
+
+host_setup = create_event(meeting_name, start, end, CREDENTIALS_FILE, attend_list)

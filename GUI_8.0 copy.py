@@ -18,7 +18,7 @@ import formulas
 ###
 # 輸入 google API 函數
 import create_event
-import def_read_write_Gsheet
+# import def_read_write_Gsheet
 
 file_path = "./schedule.csv" #存取檔案路徑(1)
 if os.path.isfile(file_path):
@@ -191,7 +191,7 @@ class Meeting(tk.Frame):
         self.cvsMain.delete('all')
         text_list= [self.txtTitle, self.txtLocation]
         entry_list = [self.calStart, self.calEnd, self.boxMeetHour, self.boxMeetMin, self.boxHourStart, self.boxHourEnd]
-        
+
         # 偵測空格+偵測開始時間晚於結束時間
         if check_empty_textbox(text_list) is False or check_empty_combobox(entry_list) is False: # 自建函數
             self.cvsMain.create_text(330,30,text="表格尚未填寫完成",font = ('Arial',20, 'bold'), fill='red')
@@ -360,14 +360,22 @@ class Meeting(tk.Frame):
         # 拿取不重複的email
         self.data = pd.read_csv('./schedule.csv') #存取檔案路徑(1)
         self.data['email'] = self.data['email'].str.strip()
-        unique_email = self.data['email'].unique()
-        print(unique_email)
+        attend_list = self.data['email'].unique()
+
+        # 拿會議名稱
+        meeting_name = self.data['name']
+
+        # 拿會議資訊
+        CREDENTIALS_FILE = './Google Calendar API/credentials_oauth.json'
+
         ###
         self.final_decision = self.boxTime.get()
         self.final_beg, self.final_end = self.final_decision.split(' - ')
-        api_begin = formulas.str2iso(self.final_beg)
-        api_end = formulas.str2iso(self.final_end)
-        print(api_begin, api_end)
+        start = formulas.str2iso(self.final_beg)
+        end = formulas.str2iso(self.final_end)
+        host_setup = create_event(meeting_name, start, end, CREDENTIALS_FILE, attend_list)
+
+        # print(api_begin, api_end)
 
 def check_empty_textbox(list):
     for entry in list:

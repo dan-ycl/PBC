@@ -4,7 +4,38 @@ from google.oauth2.service_account import Credentials
 import pandas as pd
 import pygsheets
 import gspread
+import os
 
+# 查詢 meeting.csv 的資料，根據會議名稱回傳開始、結束日期
+def sendback_date(meeting_name):
+    gc = pygsheets.authorize(service_account_file = cred_path)
+    sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/18THYdAFqANCRORZkBp7tDgGgjXGeIWdLFsJK_0ez0qM/edit#gid=0')
+    worksheet = sheet.worksheet('title', 'Overview')
+    start_date = None
+    end_date = None
+    
+    # 獲取 A 欄的數據
+    column_data = worksheet.get_col(1)
+    row_index = None
+
+    for index, value in enumerate(column_data):
+        if value == meeting_name:
+            row_index = index + 1
+            break
+    if row_index:
+        print(f'所屬會議名稱在雲端會議清單第 {row_index} 列')
+        start_date = worksheet.get_value('C'+str(row_index))
+        end_date = worksheet.get_value('D'+str(row_index))
+    # else:
+        # print('找不到會議名稱')
+    
+    return start_date, end_date
+    
+    
+
+
+
+# 主程式：ClickBtnSubmit，要加功能是根據attendee 輸入的會議名稱查詢 meeting.csv的日期
 # Function 2-1: 將 schedule.csv 資料延續貼到 Gsheet
 def write_csv_to_GSheet(meeting_name, cred_path, input_csv):
     # 利用 pygsheets 開啟 GoogleSheet
@@ -13,7 +44,7 @@ def write_csv_to_GSheet(meeting_name, cred_path, input_csv):
     worksheet = sheet.worksheet('title', meeting_name)
 
     # sample CSV file, use your path
-    df = pd.read_csv(input_csv, encoding = 'utf-8')
+    df = pd.read_csv(input_csv, encoding = 'big5')  # utf-8_sig
     cells = worksheet.get_all_values(include_tailing_empty_rows=False, include_tailing_empty=False, returnas='matrix')
     last_row = str(len(cells)+1)
     worksheet.set_dataframe(df, start = "A" + last_row ,copy_head=False)
@@ -21,21 +52,20 @@ def write_csv_to_GSheet(meeting_name, cred_path, input_csv):
     return
     
 
-# Function 2-2: 將 meeting.csv 資料延續貼到 Gsheet
-# 並在 schedule 的 spreadsheet 根據會議名稱建立新的分頁
+# Function 2-2: 將 meeting.csv 資料延續貼到 Gsheet，並在 schedule 的 spreadsheet 根據會議名稱建立新的分頁
 def write_meeting_csv_to_GSheet(sheet_name, cred_path, input_meeting):
     # 利用 pygsheets 開啟 GoogleSheet
     gc = pygsheets.authorize(service_account_file = cred_path)
-    sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/18THYdAFqANCRORZkBp7tDgGgjXGeIWdLFsJK_0ez0qM/edit#gid=0')
+    sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/18THYdAFqANCRORZkBp7tDgGgjXGeIWdLFsJK_0ez0qM/edit#gid=0')  # meeting.csv
     worksheet = sheet.worksheet('title', sheet_name)
 
-    df = pd.read_csv(input_meeting, encoding = 'utf-8')
+    df = pd.read_csv(input_meeting, encoding = 'big5')  # utf-8_sig
     cells = worksheet.get_all_values(include_tailing_empty_rows=False, include_tailing_empty=False, returnas='matrix')
     last_row = str(len(cells)+1)
     worksheet.set_dataframe(df, start = "A" + last_row ,copy_head=False)
 
     ### 填入title, 抓會議名稱
-    sheet_schedule = gc.open_by_url('https://docs.google.com/spreadsheets/d/1h9r2dgUJD5Fze36lkCy0sbpeQAw4V0PJlcc0cVLU4iw/edit#gid=0')
+    sheet_schedule = gc.open_by_url('https://docs.google.com/spreadsheets/d/1h9r2dgUJD5Fze36lkCy0sbpeQAw4V0PJlcc0cVLU4iw/edit#gid=0')  # schedule.csv
     worksheet_schedule = sheet_schedule.add_worksheet(df.iloc[0,0])  # 填入會議名稱
     worksheet_schedule.resize(500, 7)  # 預設工作表尺寸500列 7欄
     worksheet_schedule.update_value('A1', 'name')
@@ -47,7 +77,10 @@ def write_meeting_csv_to_GSheet(sheet_name, cred_path, input_meeting):
 
     return
 
-# Function 3: 將 Gsheet 資料下載至csv
+# Function 3: 將 Gsheet 資料下載至csv，主程式放兩個地方
+# 放在 calendar function 的最前面
+# def ClickBtnResult(self) 的最前面  X
+# 凡存取檔案路徑的open就是要抓一次新的
 def read_GSheet_to_csv(meeting_name, cred_path, output_csv):
     gc = pygsheets.authorize(service_file = cred_path)  
     sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1h9r2dgUJD5Fze36lkCy0sbpeQAw4V0PJlcc0cVLU4iw/edit#gid=0')
@@ -59,36 +92,36 @@ def read_GSheet_to_csv(meeting_name, cred_path, output_csv):
     
     return
 
+# 變數區域：路徑依據 windows 拼出絕對路徑格式
+script_path = os.path.abspath(__file__)  # 取得當前腳本的絕對路徑
+current_dir = os.path.dirname(script_path)  # 取得當前腳本所在的資料夾路徑
 
-
-# Function 2-1: Attendee 填入時間 / Attendee 按下button後的執行動作
-# 須改變以下三列字串變數
+# Function 2-1
+# def clickBtnSubmit(self):
 meeting_name = '05/25 Meeting'
-cred_path = './Google Sheet/credentials_ServiceAccount.json'
-input_csv = "./schedule.csv" # sample CSV file, use your path
+cred_path = current_dir + '\Google Sheet\credentials_ServiceAccount.json'
+input_csv = current_dir + '\Google Calendar API\schedule.csv' 
+# Function 2-2
+sheet_name = 'Overview'  # this is fixed
+input_meeting = current_dir + '\meeting.csv'
+# Function 3
+output_csv = current_dir +'\schedule_output.csv'
 
+#Function 4
+return_date = sendback_date(meeting_name)
+
+
+"""
+# Main Code
+# Function 2-1: Attendee 填入時間 / Attendee 按下button後的執行動作
 attendee_action = write_csv_to_GSheet(meeting_name, cred_path, input_csv)
 
-
-
-
-# Function 2-2: Host 填入會議資訊 / Host 按下button後的執行動作
-# 須改變以下三列字串變數
-sheet_name = 'Overview'  # this is fixed
-cred_path = './Google Sheet/credentials_ServiceAccount.json'  # 請使用個人路徑
-input_meeting ="./meeting.csv"  # 請使用個人路徑
-
+# OK # Function 2-2: Host 填入會議資訊 / Host 按下button後的執行動作   
 host_action_step1 = write_meeting_csv_to_GSheet(sheet_name, cred_path, input_meeting)
 
-
-
 # Function 3: Host 查看最終開會時間
-# 須改變以下三列字串變數
-meeting_name = '05/25 Meeting'
-cred_path = './Google Sheet/credentials_ServiceAccount.json'
-output_csv = './schedule_output.csv'
-
 host_action_step2 = read_GSheet_to_csv(meeting_name, cred_path, output_csv)
+"""
 
 
 

@@ -130,7 +130,7 @@ class Meeting(tk.Frame):
             
             self.lblIdentityAttendee = tk.Label(self, text = "您現在的身份是：會議與會者", height=2, width=1, font = ('Arial',16,'bold'))
             self.lblAttendMeeting = tk.Label(self, text = "會議名稱:", height=1, width=1, font = ('Arial',14), anchor='w')
-            self.txtAttendMeeting = tk.Text(self, height = 1, width = 20, font=('Courier New',14))
+            self.txtAttendMeeting = tk.Entry(self, font=('Courier New',14))
             self.btnSearch = tk.Button(self, text="查詢會議", height=1, command=self.clickBtnSearch, font = ('Arial',14), activeforeground='#f00')
             
             self.cvsMain.grid(row=4, rowspan=8 , column=0, columnspan=5, sticky = tk.NE + tk.SW)
@@ -269,9 +269,10 @@ class Meeting(tk.Frame):
 
     # 會議與會者：填入會議名稱，查詢會議投票日期與時間區間
     def clickBtnSearch(self):
-        self.m_title = self.txtAttendMeeting.get("0.0", tk.END)  # 抓取會議名稱
+        self.m_title = self.txtAttendMeeting.get()
+        print(self.m_title)
         textEntry = tk.StringVar()
-        textEntry.set(self.txtAttendMeeting.get("0.0", tk.END))
+        textEntry.set(self.txtAttendMeeting.get())
         fh = open('meeting.csv', "r") #存取檔案路徑(2)
         csvFile = csv.DictReader(fh)
         for row in csvFile:

@@ -269,6 +269,7 @@ class Meeting(tk.Frame):
 
     # 會議與會者：填入會議名稱，查詢會議投票日期與時間區間
     def clickBtnSearch(self):
+        self.m_title = self.txtAttendMeeting.get("0.0", tk.END)  # 抓取會議名稱
         textEntry = tk.StringVar()
         textEntry.set(self.txtAttendMeeting.get("0.0", tk.END))
         fh = open('meeting.csv', "r") #存取檔案路徑(2)

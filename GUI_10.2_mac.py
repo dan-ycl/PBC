@@ -11,11 +11,9 @@ from tkinter import scrolledtext
 from tkcalendar import * 
 from datetime import datetime, timedelta
 
-# import sys
-# sys.path.append('/Users/zoujinghao/Desktop/PBC/期末專案')
 import formulas
 
-import def_read_write_Gsheet  # 輸入 google Sheet 副函數
+import def_read_write_Gsheet_mac  # 輸入 google Sheet 副函數
 import google.auth
 from google.oauth2.service_account import Credentials
 import pygsheets
@@ -23,20 +21,22 @@ import pygsheets
 from create_event import create_event  # 輸入 google Calendar API 副函數
 from cal_setup import get_calendar_service  # Calendar API 
 from uuid import uuid4  # Calendar API 副函數
+import codecs  # 使用 codecs 模組指定中文編碼
 
-"""GUI 9.0 Mac 變數設定
+# Windows 10 變數路徑設置 #
+# cd C:\Users\user\Documents\GitHub\PBC
+# Mac請注意路徑反斜線，並透過搜尋功能將以下「'.\ 」代換為 「'./」
+
+# 檢查 schedule.csv，若存在則移除
 file_path = "./schedule.csv" #存取檔案路徑(1)  
 if os.path.isfile(file_path):
     os.remove(file_path)
-file_path = "./meeting.csv" #存取檔案路徑(2)
-"""
 
-# Windows 10 變數路徑設置 #
-# Mac請注意路徑反斜線，並透過搜尋取代功能將以下 15 個 「current_dir + '\ 」，代換為 「'./」
-# 例：「current_dir + '\meeting.csv'」，改為「'./meeting.csv 」
-# 例： credentials_ServiceAccount.json、credentials_oauth.josn 放在副資料夾，Mac 請更改「\」為「/」
-script_path = os.path.abspath(__file__)
-current_dir = os.path.dirname(script_path)  # 取得當前腳本所在的資料夾路徑
+# 已設定每次都覆寫 meeting.csv，不用移除；否則 host 開第二次程式執行會議結果時，檔案會被刪除
+# file_path = ".\meeting.csv" #存取檔案路徑(2)  
+# if os.path.isfile(file_path):
+    # os.remove(file_path)
+
 
 class Meeting(tk.Frame):
     def __init__(self, master=None):
@@ -179,7 +179,7 @@ class Meeting(tk.Frame):
             self.m_startTime = self.boxHourStart.get()
             self.m_endTime = self.boxHourEnd.get()
             
-            with open(current_dir + '\meeting.csv', "w", newline='') as test: #存取檔案路徑(2)
+            with codecs.open('meeting.csv', "w", encoding = 'utf_8_sig') as test: #存取檔案路徑(2)
                 writer = csv.writer(test)
                 # 輸入標題
                 csv_head = ['title', 'location', 'start date', 'end date', 'start time', 'end time', 'hour', 'min']
@@ -189,18 +189,16 @@ class Meeting(tk.Frame):
             self.output = [self.m_title, self.m_hour, self.m_min, self.m_location, self.m_startDate, self.m_endDate, self.m_startTime, self.m_endTime, self.int_hour, self.int_min]
             
             # 上傳資訊至 Google sheet meeting，並在 schedule 建立新分頁
-            sheet_name = 'Overview'  # this is fixed
-            cred_path = current_dir + '\Google Sheet\credentials_ServiceAccount.json'
-            input_meeting = current_dir + '\meeting.csv'
-            def_read_write_Gsheet.write_meeting_csv_to_GSheet(sheet_name, cred_path, input_meeting)
+            sheet_name = 'Overview'
+            cred_path = './Google Sheet/credentials_ServiceAccount.json'
+            input_meeting = 'meeting.csv'
+            def_read_write_Gsheet_mac.write_meeting_csv_to_GSheet(sheet_name, cred_path, input_meeting)
             print('雲端建立會議資訊成功')
             return self.output
 
     #　查看會議結果頁面
     def clickBtnResult(self):
-        # 本地只有一列輸入值，如果從雲端拉，資訊會過多且錯誤(需要其他方法debug)
-        # 目前缺點：不能一開始就查詢結果，只有 Host 因為有本地 meeting.csv，可以執行查看會議結果 (晚點繼續修)
-        fh = open(current_dir + '\meeting.csv', "r") #存取檔案路徑(2) 
+        fh = codecs.open('meeting.csv', "r", encoding = 'utf_8_sig') #存取檔案路徑(2) 
         csvFile = csv.DictReader(fh)
         for row in csvFile:
             self.m_title = row["title"]
@@ -216,10 +214,33 @@ class Meeting(tk.Frame):
         for i in date_delta:
             date_schedule.append(formulas.Schedule(i).schedule)
         meeting_length = int(self.int_hour) * 60 + int(self.int_min)
-        self.data = pd.read_csv(current_dir + '\schedule.csv') #存取檔案路徑(1)
-        name_num = self.data['name'].nunique()
+        
+        # 下載雲端該會議分頁的所有資料至電腦路徑的 schedule.csv (可新建or覆蓋沿用)
+        gc = pygsheets.authorize(service_file = './Google Sheet/credentials_ServiceAccount.json')  
+        sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1h9r2dgUJD5Fze36lkCy0sbpeQAw4V0PJlcc0cVLU4iw/edit#gid=0')     
+        worksheet = sheet.worksheet('title', self.m_title)
+        df = worksheet.get_as_df()        
+        df.to_csv('./schedule.csv' , errors='replace', encoding='utf-8-sig', index=False)  
+        
+        self.data = pd.read_csv('./schedule.csv', encoding='utf-8-sig') #存取檔案路徑(1)
+        
+        # name_num = self.data['name'].nunique()  # 1. 中文內容會出錯，英文ok         
+        # set_name = set(self.data.iloc[:, 0])  # 2. 中文編碼會出錯
+        # if 'name' in set_name:
+            # set_name.remove('name')
+        # name_num = len(set_name)
+        # print('已投票出席者：', set_name)
+        
+        name_num = 0  # 3. 迭代遍歷 DataFrame 的每一行        
+        for index, row in self.data.iterrows():
+            value = row['name']
+            if index > 0 and value != self.data.loc[index-1, 'name']:
+                name_num += 1
+        print('共有', str(name_num), '人填寫時段')
+        
+        
         # 讀取每一個人的available time
-        fh = open(current_dir + '\schedule.csv', "r") #存取檔案路徑(1)
+        fh = codecs.open('./schedule.csv', "r", encoding = 'utf_8_sig') #存取檔案路徑(1)
         test = csv.DictReader(fh)
         # 把每一行的時段加進對應天數的清單中
         for row in test:
@@ -287,13 +308,13 @@ class Meeting(tk.Frame):
     # 會議與會者：填入會議名稱，查詢會議投票日期與時間區間
     def clickBtnSearch(self):
         self.m_title = self.txtAttendMeeting.get()  # 抓取會議名稱
-        print('加入會議名稱：', self.m_title)
+        print('選擇會議：', self.m_title)
         
         textEntry = tk.StringVar()
         textEntry.set(self.txtAttendMeeting.get())
 
         # 與會者抓雲端 meeting.csv 的資料
-        cloud_meeting = def_read_write_Gsheet.sendback_date(self.m_title)
+        cloud_meeting = def_read_write_Gsheet_mac.sendback_date(self.m_title)
         print('該會議投票起訖時間', cloud_meeting)
         self.m_startDate = cloud_meeting[0]
         self.m_endDate = cloud_meeting[1]
@@ -371,17 +392,16 @@ class Meeting(tk.Frame):
         self.startTime = self.boxChooseStartTime.get()
         self.endTime = self.boxChooseEndTime.get()
         self.meeting_name = self.txtAttendMeeting.get()  
+        print('加入會議時段：',self.date, self.startTime,'~', self.endTime)
         
-        print('加入會議名稱：',self.meeting_name)
-        
-        file_path = current_dir + '\schedule.csv' #存取檔案路徑(1)
+        file_path = './schedule.csv' #存取檔案路徑(1)
         if os.path.isfile(file_path):
-            with open(file_path, "a+", newline='') as test:
+            with codecs.open(file_path, "a+", encoding = 'utf_8_sig') as test:
                 writer = csv.writer(test)
                 writer.writerow([self.name, self.email, self.date, self.startTime, self.endTime, formulas.time_str(self.startTime, self.endTime)])
         else:
-            with open(current_dir + '\schedule.csv', "w", newline='') as test: #存取檔案路徑(1)
-                writer = csv.writer(test)
+            with codecs.open('./schedule.csv', "w", encoding = 'utf_8_sig') as test: #存取檔案路徑(1)  
+                writer = csv.writer(test)  # 若目前路徑無檔案，則新建立
                 # 輸入標題
                 csv_head = ['name', 'email', 'date', 'start time', 'end time', 'time string']
                 writer.writerow(csv_head)
@@ -392,7 +412,7 @@ class Meeting(tk.Frame):
         self.cvsMain.create_text(185,30,text="開始時間", anchor='w', font = ('Arial',16))
         self.cvsMain.create_text(355,30,text="結束時間", anchor='w', font = ('Arial',16))
         y = 30
-        fh = open(current_dir + '\schedule.csv', "r")  # 存取檔案路徑(1)
+        fh = codecs.open('./schedule.csv', "r", encoding = 'utf_8_sig')  # 存取檔案路徑(1)
         test = csv.DictReader(fh)
         for row in test:
             y += 30
@@ -402,36 +422,42 @@ class Meeting(tk.Frame):
             self.cvsMain.create_text(185,y,text=self.startTime, anchor='w', font = ('Arial',16))
             self.endTime = row['end time']
             self.cvsMain.create_text(355,y,text=self.endTime, anchor='w', font = ('Arial',16))
-        fh.close()
+        # fh.close()  # 關檔案有沒有影響哇
         
 
     # 與會者上傳會議時間(csv上傳到Google Sheets)
     def clickBtnSubmit(self):
-        cred_path = current_dir + '\Google Sheet\credentials_ServiceAccount.json'
+        cred_path = './Google Sheet/credentials_ServiceAccount.json'
         gc = pygsheets.authorize(service_account_file = cred_path)
         sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1h9r2dgUJD5Fze36lkCy0sbpeQAw4V0PJlcc0cVLU4iw/edit#gid=0')
         self.meeting_name = self.txtAttendMeeting.get()  #取會議名稱        
         worksheet = sheet.worksheet('title', self.meeting_name)
 
-        input_csv = current_dir + '\schedule.csv' 
-        df = pd.read_csv(input_csv, encoding = 'big5')  # utf-8_sig  big5  utf-8-sig utf_8_sig
+        input_csv = './schedule.csv' 
+        df = pd.read_csv(input_csv, encoding = 'utf_8_sig')  # utf-8_sig  big5(X)  utf-8-sig utf_8_sig
         cells = worksheet.get_all_values(include_tailing_empty_rows=False, include_tailing_empty=False, returnas='matrix')
         last_row = str(len(cells)+1)
         worksheet.set_dataframe(df, start = "A" + last_row ,copy_head=False)
+        print('已上傳各時段至雲端')
 
 
     # 建立 Google Calendar
     def clickBtnCal(self):
-        cred_path = current_dir + '\Google Sheet\credentials_ServiceAccount.json'
-        output_csv = current_dir + '\schedule.csv'        
+        # 拿 host 本地的會議名稱
+        fh = codecs.open('meeting.csv', "r", encoding = 'utf_8_sig') #存取檔案路徑(2)
+        csvFile = csv.DictReader(fh)
+        for row in csvFile:
+            self.m_title = row["title"]
+        
+        # 下載該會議分頁的資料至本地 csv (可新建or覆蓋沿用)
+        cred_path = './Google Sheet/credentials_ServiceAccount.json'
+        output_csv = './schedule.csv'        
         gc = pygsheets.authorize(service_file = cred_path)  
         sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1h9r2dgUJD5Fze36lkCy0sbpeQAw4V0PJlcc0cVLU4iw/edit#gid=0')
-
-        # 下載該指定分頁名稱的資料，至指定路徑的csv (可新建or覆蓋沿用)
-        worksheet = sheet.worksheet('title', self.meeting_name)
+        worksheet = sheet.worksheet('title', self.m_title)        
         df = worksheet.get_as_df()
-        df.to_csv(output_csv , errors='replace', encoding='utf-8-sig', index=False)    # 下載 utf-8-sig / utf_8_sig // 上傳 big5   
-        
+        df.to_csv(output_csv , errors='replace', encoding='utf_8_sig', index=False)    # 下載 utf-8-sig / utf_8_sig // 上傳 big5 (5/30)   
+        print('下載雲端所有資料')
         
         # 拿取不重複的email
         self.data = pd.read_csv(output_csv) #存取檔案路徑(1)
@@ -443,7 +469,7 @@ class Meeting(tk.Frame):
         # print(attend_list)
 
         # 拿會議資訊
-        CREDENTIALS_FILE = current_dir + '\Google Calendar API\credentials_oauth.json'
+        CREDENTIALS_FILE = './Google Calendar API/credentials_oauth.json'
 
         ###
         self.final_decision = self.boxTime.get()
@@ -451,13 +477,6 @@ class Meeting(tk.Frame):
         self.start = formulas.str2iso(self.final_beg)
         self.end = formulas.str2iso(self.final_end)
 
-        # 拿會議名稱
-        fh = open(current_dir + '\meeting.csv', "r") #存取檔案路徑(2)
-        csvFile = csv.DictReader(fh)
-        for row in csvFile:
-            self.m_title = row["title"]
-        # meeting_name = self.m_title
-        
         host_setup = create_event(self.m_title, self.start, self.end, CREDENTIALS_FILE, attend_list)
 
 def check_empty_textbox(list):

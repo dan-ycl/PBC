@@ -10,7 +10,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ['https://www.googleapis.com/auth/calendar']
+SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
 
 def main():
@@ -29,7 +29,7 @@ def main():
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+                './Google Calendar API/credentials_oauth.json', SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open('token.json', 'w') as token:
@@ -61,42 +61,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-# Refer to the Python quickstart on how to setup the environment:
-# https://developers.google.com/calendar/quickstart/python
-# Change the scope to 'https://www.googleapis.com/auth/calendar' and delete any
-# stored credentials.
-
-event = {
-  'summary': 'test',
-  'location': '管院103',
-  'description': 'testing for meeting scheduler',
-  'start': {
-    'dateTime': '2022-05-28T09:00:00-07:00',
-    'timeZone': 'Asia/Taipei',
-  },
-  'end': {
-    'dateTime': '2022-05-28T09:00:00-010:00',
-    'timeZone': 'Asia/Taipei',
-        },
-  'recurrence': [
-    'RRULE:FREQ=DAILY;COUNT=2'
-  ],
-  'attendees': [
-    {'email': 'lpage@example.com'},
-    {'email': 'sbrin@example.com'},
-  ],
-  'reminders': {
-    'useDefault': False,
-    'overrides': [
-      {'method': 'email', 'minutes': 24 * 60},
-      {'method': 'popup', 'minutes': 10},
-    ],
-  },
-}
-
-event = service.events().insert(calendarId='primary', body=event).execute()
-print('Event created: %s' % (event.get('htmlLink')))

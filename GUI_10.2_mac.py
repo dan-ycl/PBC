@@ -18,7 +18,7 @@ import google.auth
 from google.oauth2.service_account import Credentials
 import pygsheets
 
-from create_event import create_event  # 輸入 google Calendar API 副函數
+from create_event_mac import create_event  # 輸入 google Calendar API 副函數
 from cal_setup import get_calendar_service  # Calendar API 
 from uuid import uuid4  # Calendar API 副函數
 import codecs  # 使用 codecs 模組指定中文編碼

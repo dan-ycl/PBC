@@ -32,6 +32,12 @@ pip install googleapis-common-protos
 pip install pygsheets
 pip install oauthlib
 pip install pandas
+pip install tkinter
+pip install tkinter.font
+pip install csv
+pip install os
+pip install tkcalendar
+pip install datetime
 ```
 
 2. 請確保程式檔案儲存階層 (以 windows OS 為例)
